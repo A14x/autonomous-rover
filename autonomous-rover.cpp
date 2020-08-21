@@ -86,8 +86,10 @@ void stop() {
 // returns 0 if safe 1 if not front 2 if not behind
 int8_t is_safe() {
     if (find_distance(1) <= 5){
+        stop();
         return 1;
     } else if (find_distance(0) <= 5){
+        stop();
         return 2;
     } else {
         return 0;
@@ -138,9 +140,6 @@ void loop() {
 
     // safety check
     safe = is_safe();
-    if (safe != 0){
-        stop();
-    }
 
     update_time();
     update_steps();
@@ -149,3 +148,4 @@ void loop() {
 
     delay(50);
 }
+
