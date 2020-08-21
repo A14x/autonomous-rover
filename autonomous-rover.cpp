@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-// Define Trig and Echo pin:
+// Define pin number macros
 #define trigPinFront 2
 #define echoPinFront 3
 #define trigPinBack 4
@@ -19,6 +19,14 @@ int distance;
 int trigPin;
 int echoPin;
 int8_t safe;
+int steps;
+unsigned long target_time = 0;
+unsigned long current_time;
+int totalDistanceX;
+int totalDistanceY;
+float revsPerSec;
+float speed;
+char direction;
 
 int find_distance(bool direction) {
     
@@ -31,7 +39,7 @@ int find_distance(bool direction) {
         echoPin = echoPinBack;
     }
     
-    // Rest of this function is not authored by me instead see: Example code for HC-SR04 ultrasonic distance sensor with Arduino. No library required. More info: https://www.makerguides.com */
+    // Rest of this function is not authored by me instead see Example code for HC-SR04 ultrasonic distance sensor with Arduino. No library required. More info: https://www.makerguides.com */
 
     // Clear the trigPin by setting it LOW:
     digitalWrite(trigPin, LOW);
@@ -53,6 +61,7 @@ int find_distance(bool direction) {
 }
 
 void forward() {
+    direction = 'f';
     digitalWrite(leftBackwardPin, LOW);
     digitalWrite(rightBackwardPin, LOW);
     digitalWrite(leftForwardPin, HIGH);
@@ -60,12 +69,14 @@ void forward() {
 }
 
 void backward() {
+    direction = 'b';
     digitalWrite(leftForwardPin, LOW);
     digitalWrite(rightForwardPin, LOW);
     digitalWrite(leftBackwardPin, HIGH);
     digitalWrite(rightBackwardPin, HIGH);
 }
 void stop() {
+    direction = 's';
     digitalWrite(leftBackwardPin, LOW);
     digitalWrite(rightBackwardPin, LOW);
     digitalWrite(leftForwardPin, LOW);
@@ -84,10 +95,27 @@ int8_t is_safe() {
 }
 
 float get_speed(bool side /* if 0 left if 1 right */){
-    
+    return speed;
 }
 
-// Execution
+// updates current time and 
+void update_time(){
+    current_time = millis();
+    if (current_time >= target_time){
+        target_time = current_time + 1000;
+        revsPerSec = steps / 20; // 20 is number of gaps in code wheel
+    }
+}
+
+void update_steps(){
+    if (digitalRead(codeWheelLeft)){
+        steps = steps + 1;
+    }
+}
+
+////////////////////////////////////////////////////////////
+/////////////////////// Execution //////////////////////////
+////////////////////////////////////////////////////////////
 void setup() {
     // Define inputs and outputs:
     pinMode(trigPinFront, OUTPUT);
@@ -98,8 +126,8 @@ void setup() {
     pinMode(leftBackwardPin, OUTPUT);
     pinMode(rightForwardPin, OUTPUT);
     pinMode(rightBackwardPin, OUTPUT);
-    pinMode(codeWheelLeft, INPUT);
-    pinMode(codeWheelRight, INPUT);
+    pinMode(codeWheelLeft, INPUT_PULLUP);
+    pinMode(codeWheelRight, INPUT_PULLUP);
 
     backward();
     delay(1000);
@@ -107,12 +135,17 @@ void setup() {
 
 void loop() {
     forward();
+
     // safety check
     safe = is_safe();
     if (safe != 0){
         stop();
     }
 
+    update_time();
+    update_steps();
+
+
+
     delay(50);
 }
-
