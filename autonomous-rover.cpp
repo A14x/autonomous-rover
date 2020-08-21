@@ -1,6 +1,3 @@
-/////////// Credits ///////////
-// Example code for HC-SR04 ultrasonic distance sensor with Arduino. No library required. More info: https://www.makerguides.com */
-
 #include <Arduino.h>
 
 // Define Trig and Echo pin:
@@ -34,7 +31,7 @@ int find_distance(bool direction) {
         echoPin = echoPinBack;
     }
     
-    // Rest of this function is not authored by me instead see https://www.makerguides.com/
+    // Rest of this function is not authored by me instead see: Example code for HC-SR04 ultrasonic distance sensor with Arduino. No library required. More info: https://www.makerguides.com */
 
     // Clear the trigPin by setting it LOW:
     digitalWrite(trigPin, LOW);
